@@ -22,8 +22,11 @@ public class Gameboard extends JPanel {
 	private Shape[] boardGUI; //Shapes that make up the board GUI
 	private HashMap<Shape, Location> roomToLocation; //A map to go from GUI Shapes -> Logical Rooms/Hallways
 	private Character activeCharacter; //The current character moving around
-	JTextArea messageArea;
-	JTextField textField;
+	
+	@Override
+    public Dimension getPreferredSize() {
+        return new Dimension(800, 900);
+    }; 
 	
 	/*
 	 * Paints the actual background as well as the character tokens.
@@ -110,16 +113,6 @@ public class Gameboard extends JPanel {
 		roomToLocation.put(hall_billiard, hallways[9]);
 		roomToLocation.put(billiard_ballroom, hallways[10]);
 		roomToLocation.put(diningroom_kitchen, hallways[11]);
-		
-		messageArea = new JTextArea(8,40);
-		textField = new JTextField(40);
-		
-		messageArea.setLocation(800,800);
-		
-		textField.setEditable(false);
-		messageArea.setEditable(false);
-		repaint();
-		
 		
 	}
 	
