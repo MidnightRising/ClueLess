@@ -32,7 +32,7 @@ public class ChatClient {
 	private void addListeners() {
 		input.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-                out.println(name + ": " + input.getText());
+                out.println("CHATMESSAGE" + name + ": " + input.getText());
                 input.setText("");
 			}
 		});
@@ -53,13 +53,13 @@ public class ChatClient {
 		out = new PrintWriter(socket.getOutputStream(), true);
 		
 	            if (command.startsWith("SUBMITNAME")) {
-	            	out.println(name);
+	            	out.println("NAME" + name);
 	            } else if (command.startsWith("NAMEACCEPTED")) {
 	                input.setEditable(true);
 	            } else if (command.startsWith("MESSAGE")) {
 	                chatbox.append(command.substring(7) + "\n");
 	            } else if (command.startsWith("REJECTEDNAME")) {
-	            	String newName = getNewName();
+	            	String newName = "NAME" + getNewName();
 	                out.println(newName);
 	                name = newName;
 	            } else if (command.startsWith("EVENT")) {

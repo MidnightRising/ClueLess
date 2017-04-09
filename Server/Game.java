@@ -90,8 +90,6 @@ public class Game {
 			ClueLessServer.players.get(5).addCard(finalDeck.get(i));
 		}
 		
-		System.out.println("Divvied up the cards.");
-		
 		for(Player p : ClueLessServer.players) {
 			Socket s = p.getSocket();
 			try {
@@ -110,5 +108,13 @@ public class Game {
 			}
 		}
 		
+	}
+
+	public void serverCommand(String command) {
+		if(command.startsWith("MOVE")) {
+			for(PrintWriter writer : ClueLessServer.writers) {
+				writer.println(command);
+			}
+		}
 	}
 }

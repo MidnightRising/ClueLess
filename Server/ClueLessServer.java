@@ -12,14 +12,15 @@ public class ClueLessServer {
 	 public static HashSet<String> names = new HashSet<String>();
 	 public static HashSet<PrintWriter> writers = new HashSet<PrintWriter>();
 	 public static ArrayList<Player> players = new ArrayList<Player>();
+	 public static Game game;
 	 
 	public static void main(String[] args) throws Exception {		
 		ServerSocket listener = new ServerSocket(5555);
-		System.out.println("The chat server has started");
 		try {
 			while (true) {
 				Socket player = listener.accept();
-				new ChatHandler(player).start();
+				SocketManager sm = new SocketManager(player);
+				sm.start();
 				players.add(new Player(player));
 				if(players.size() == 6) {
 					System.out.println("Starting the game!");
@@ -30,7 +31,7 @@ public class ClueLessServer {
 					players.get(3).setName("Mrs. Peacock");
 					players.get(4).setName("Miss Scarlet");
 					players.get(5).setName("Professor Plum");
-					Game game = new Game();
+					game = new Game();
 					
 					for(int i = 0; i < players.size(); i++) {
 						PrintWriter out = new PrintWriter(players.get(i).getSocket().getOutputStream(), true);
@@ -38,7 +39,7 @@ public class ClueLessServer {
 						out.println("ASSIGNED" + players.get(i).getName());
 					}
 				} else {
-					System.out.println("Players size: " + writers.size());
+					System.out.println("Players size: " + players.size());
 				}
 			}
 		} finally {

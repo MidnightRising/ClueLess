@@ -15,8 +15,13 @@ import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import javax.swing.*;
 
@@ -24,9 +29,10 @@ public class Gameboard extends JPanel {
 	private Room[] rooms; //Array of all rooms
 	private Hallway[] hallways; //Array of all hallways
 	private Shape[] boardGUI; //Shapes that make up the board GUI
-	private HashMap<Shape, Location> roomToLocation; //A map to go from GUI Shapes -> Logical Rooms/Hallways
+	private BiMap<Shape, Location> roomToLocation; //A map to go from GUI Shapes -> Logical Rooms/Hallways
 	private Character activeCharacter; //The current character moving around
 	private Socket socket;
+	private Token[] tokens;
 	
 	@Override
     public Dimension getPreferredSize() {
@@ -96,7 +102,15 @@ public class Gameboard extends JPanel {
 			g2d.fill(activeCharacter.getToken());	
 		}
 		
-		roomToLocation = new HashMap<Shape, Location>();
+		if(tokens != null) {
+			for(Token t : tokens) {
+				g2d.setColor(t.getColor());
+				Shape s = new Ellipse2D.Double(t.getLocation().getBounds().getCenterX() - 10, t.getLocation().getBounds().getCenterY() - 10, 25, 25);
+				g2d.fill(s);
+			}
+		}
+		
+		roomToLocation = HashBiMap.create();
 		
 		roomToLocation.put(study, rooms[0]);
 		roomToLocation.put(hall, rooms[1]);
@@ -164,21 +178,33 @@ public class Gameboard extends JPanel {
 		this.hallways = new Hallway[]{studyToHall, hallToLounge, loungeToDiningRoom, diningRoomtoBilliards, billiardToLibrary, libraryToConservatory, conservatoryToBallroom, ballroomToKitchen, studyToLibrary, hallToBilliard, billiardToBallroom, diningroomToKitchen};
 		
 	}
-
-	public void setActiveCharacter(Character active) {
-		activeCharacter = active;
-		initiateToken(650, 275, activeCharacter, Color.YELLOW);
-	}
 	
 	/*
 	 * Instantiates player tokens, allowing graphical movement around the board.
 	 */
 	public void initiateToken(double x, double y, Character character, Color color) {
 		Shape characterToken = new Ellipse2D.Double(x - 10, y - 10, 25, 25);
-		
 		character.setToken(characterToken);
 		character.setColor(color);
 		repaint();
+	}
+	
+	private void moveNonPlayerToken(String name, String location) {
+		for(Token t : tokens) {
+			if(t.getName().equals(name)) {
+				ArrayList<Location> allLocations = new ArrayList<Location>();
+				allLocations.addAll(Arrays.asList(hallways));
+				allLocations.addAll(Arrays.asList(rooms));
+				for(Location l : allLocations) {
+					if(l.getName().equals(location)) {
+						t.setLocation(roomToLocation.inverse().get(l));
+						break;
+					}
+				}
+				repaint();
+				break;
+			}			
+		}
 	}
 	
 	/*
@@ -197,7 +223,7 @@ public class Gameboard extends JPanel {
 	 * Checks to make sure that the character can move there in logical space
 	 *  If yes, then it calls the moveToken() method. Otherwise throw error
 	 */
-	private void moveCharacter(Location loc, Shape pixelLocation) {
+	private void moveCharacter(Location loc, Shape pixelLocation) throws IOException {
 		boolean moved = false;
 		Location currentLocation = activeCharacter.getLocation();
 		Location[] connections = currentLocation.getConnections();
@@ -206,6 +232,8 @@ public class Gameboard extends JPanel {
 				activeCharacter.move(loc);
 				moved = true;
 				moveToken(pixelLocation);
+				PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
 			}
 		}
 		
@@ -225,7 +253,12 @@ public class Gameboard extends JPanel {
 				super.mouseClicked(e);
 				for(int i = 0; i < boardGUI.length; i++) {
 					if(boardGUI[i].contains(e.getPoint()) || boardGUI[i].intersects(e.getX() - 5, e.getY() - 5, 15, 15)) {
-						moveCharacter(roomToLocation.get(boardGUI[i]), boardGUI[i]);
+						try {
+							moveCharacter(roomToLocation.get(boardGUI[i]), boardGUI[i]);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 				}
 			}
@@ -238,39 +271,83 @@ public class Gameboard extends JPanel {
 
 	public void serverCommand(String command) {
 		if(command.startsWith("MOVE")) {
-			System.out.println("VICTORY!");
+			command = command.substring(4);
+			String[] moveCommand = command.split(";");
+			moveNonPlayerToken(moveCommand[0], moveCommand[1]);
 		} else if(command.startsWith("ASSIGNED")) {
 			String character = command.substring(8);
-			System.out.println("LENGTH: " + boardGUI.length);
-			System.out.println("CHARACTER: " + character);
+			Token pp;
+			Token cm;
+			Token mw;
+			Token mg;
+			Token mp;
+			Token ms;
 			switch(character) {
 			case "Professor Plum":
 				activeCharacter = new Character("Professor Plum", hallways[1]);
 				initiateToken(boardGUI[10].getBounds().getCenterX(), boardGUI[10].getBounds().getCenterY(), activeCharacter, new Color(255, 0, 255));
+				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
+				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
+				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				tokens = new Token[]{cm, mw, mg, mp, ms};
+				repaint();
 				break;
 			case "Colonel Mustard":
-				System.out.println("COLONEL MUSTARD");
 				activeCharacter = new Character("Colonel Mustard", hallways[2]);
-				System.out.println("Active Character Created");
-				double x = boardGUI[17].getBounds().getCenterX();
-				double y = boardGUI[17].getBounds().getCenterY();
-				initiateToken(x, y, activeCharacter, Color.YELLOW);
+				initiateToken(boardGUI[17].getBounds().getCenterX(), boardGUI[17].getBounds().getCenterY(), activeCharacter, Color.YELLOW);
+				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
+				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				tokens = new Token[]{pp, mw, mg, mp, ms};
+				repaint();
 				break;
 			case "Mrs. White":
 				activeCharacter = new Character("Mrs. White", hallways[3]);
 				initiateToken(boardGUI[12].getBounds().getCenterX(), boardGUI[12].getBounds().getCenterY(), activeCharacter, Color.WHITE);
+				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
+				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
+				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				tokens = new Token[]{pp, cm, mg, mp, ms};
+				repaint();
 				break;
 			case "Mr. Green":
 				activeCharacter = new Character("Mr. Green", hallways[4]);
 				initiateToken(boardGUI[11].getBounds().getCenterX(), boardGUI[11].getBounds().getCenterY(), activeCharacter, Color.GREEN);
+				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
+				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
+				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
+				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				tokens = new Token[]{pp, cm, mw, mp, ms};
+				repaint();
 				break;
 			case "Mrs. Peacock":
 				activeCharacter = new Character("Mrs. Peacock", hallways[5]);
 				initiateToken(boardGUI[18].getBounds().getCenterX(), boardGUI[18].getBounds().getCenterY(), activeCharacter, Color.BLUE);
+				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
+				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				tokens = new Token[]{pp, cm, mw, mg, ms};
+				repaint();
 				break;
 			case "Miss Scarlet":
 				activeCharacter = new Character("Miss Scarlet", hallways[6]);
 				initiateToken(boardGUI[13].getBounds().getCenterX(), boardGUI[13].getBounds().getCenterY(), activeCharacter, Color.RED);
+				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
+				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
+				tokens = new Token[]{pp, cm, mw, mg, mp};
+				repaint();
 				break;
 			}
 		}

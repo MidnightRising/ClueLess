@@ -23,12 +23,13 @@ public class SocketManager extends Thread {
 				String line = reader.readLine();
 				
 				if(line != null) {
-					System.out.println("SM: " + line);
-				}
-				if(line.startsWith("MESSAGE") || line.startsWith("SUBMITNAME") || line.startsWith("NAMEACCEPTED") || line.startsWith("REJECTEDNAME") || line.startsWith("EVENT")) {
-					chat.serverCommand(line);
-				} else if(line.startsWith("ASSIGNED")) {
-					gameboard.serverCommand(line);
+					System.out.println("Client-SM: " + line);
+					
+					if(line.startsWith("MESSAGE") || line.startsWith("SUBMITNAME") || line.startsWith("NAMEACCEPTED") || line.startsWith("REJECTEDNAME") || line.startsWith("EVENT")) {
+						chat.serverCommand(line);
+					} else if(line.startsWith("ASSIGNED") || line.startsWith("MOVE")) {
+						gameboard.serverCommand(line);
+					}
 				}
 			}
 		} catch (IOException e) {

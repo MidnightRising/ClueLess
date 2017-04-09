@@ -38,4 +38,8 @@ public class Character {
 	public void setColor(Color c) {
 		color = c;
 	}
+	
+	public String getName() {
+		return name;
+	}
 }
