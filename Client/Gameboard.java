@@ -12,6 +12,10 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
 import java.util.HashMap;
 
 import javax.swing.*;
@@ -22,6 +26,7 @@ public class Gameboard extends JPanel {
 	private Shape[] boardGUI; //Shapes that make up the board GUI
 	private HashMap<Shape, Location> roomToLocation; //A map to go from GUI Shapes -> Logical Rooms/Hallways
 	private Character activeCharacter; //The current character moving around
+	private Socket socket;
 	
 	@Override
     public Dimension getPreferredSize() {
@@ -86,8 +91,10 @@ public class Gameboard extends JPanel {
 			g2d.draw(boardGUI[i]);
 		}
 		
-		g2d.setColor(activeCharacter.getColor());
-		g2d.fill(activeCharacter.getToken());
+		if(activeCharacter != null && activeCharacter.getColor() != null && activeCharacter.getToken() != null) {
+			g2d.setColor(activeCharacter.getColor());
+			g2d.fill(activeCharacter.getToken());	
+		}
 		
 		roomToLocation = new HashMap<Shape, Location>();
 		
@@ -204,9 +211,7 @@ public class Gameboard extends JPanel {
 		
 		if(moved == false) {
 			System.out.println("Cannot move character to that room.");
-		}
-			
-		
+		}		
 	}
 	
 	/*
@@ -217,8 +222,6 @@ public class Gameboard extends JPanel {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-
 				super.mouseClicked(e);
 				for(int i = 0; i < boardGUI.length; i++) {
 					if(boardGUI[i].contains(e.getPoint()) || boardGUI[i].intersects(e.getX() - 5, e.getY() - 5, 15, 15)) {
@@ -229,9 +232,48 @@ public class Gameboard extends JPanel {
 		});
 	}
 	
-	//Quick way to set the starting position for yellow
-	public Location getStartingLocation() {
-		return this.hallways[2];
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+	}
+
+	public void serverCommand(String command) {
+		if(command.startsWith("MOVE")) {
+			System.out.println("VICTORY!");
+		} else if(command.startsWith("ASSIGNED")) {
+			String character = command.substring(8);
+			System.out.println("LENGTH: " + boardGUI.length);
+			System.out.println("CHARACTER: " + character);
+			switch(character) {
+			case "Professor Plum":
+				activeCharacter = new Character("Professor Plum", hallways[1]);
+				initiateToken(boardGUI[10].getBounds().getCenterX(), boardGUI[10].getBounds().getCenterY(), activeCharacter, new Color(255, 0, 255));
+				break;
+			case "Colonel Mustard":
+				System.out.println("COLONEL MUSTARD");
+				activeCharacter = new Character("Colonel Mustard", hallways[2]);
+				System.out.println("Active Character Created");
+				double x = boardGUI[17].getBounds().getCenterX();
+				double y = boardGUI[17].getBounds().getCenterY();
+				initiateToken(x, y, activeCharacter, Color.YELLOW);
+				break;
+			case "Mrs. White":
+				activeCharacter = new Character("Mrs. White", hallways[3]);
+				initiateToken(boardGUI[12].getBounds().getCenterX(), boardGUI[12].getBounds().getCenterY(), activeCharacter, Color.WHITE);
+				break;
+			case "Mr. Green":
+				activeCharacter = new Character("Mr. Green", hallways[4]);
+				initiateToken(boardGUI[11].getBounds().getCenterX(), boardGUI[11].getBounds().getCenterY(), activeCharacter, Color.GREEN);
+				break;
+			case "Mrs. Peacock":
+				activeCharacter = new Character("Mrs. Peacock", hallways[5]);
+				initiateToken(boardGUI[18].getBounds().getCenterX(), boardGUI[18].getBounds().getCenterY(), activeCharacter, Color.BLUE);
+				break;
+			case "Miss Scarlet":
+				activeCharacter = new Character("Miss Scarlet", hallways[6]);
+				initiateToken(boardGUI[13].getBounds().getCenterX(), boardGUI[13].getBounds().getCenterY(), activeCharacter, Color.RED);
+				break;
+			}
+		}
 	}
 	
 	

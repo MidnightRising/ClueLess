@@ -18,6 +18,10 @@ public class Player {
 		characterName = name;
 	}
 	
+	public String getName() {
+		return characterName;
+	}
+	
 	public ArrayList<Card> getHand() {
 		return hand;
 	}

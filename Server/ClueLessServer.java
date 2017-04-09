@@ -31,8 +31,14 @@ public class ClueLessServer {
 					players.get(4).setName("Miss Scarlet");
 					players.get(5).setName("Professor Plum");
 					Game game = new Game();
+					
+					for(int i = 0; i < players.size(); i++) {
+						PrintWriter out = new PrintWriter(players.get(i).getSocket().getOutputStream(), true);
+						System.out.println("Assigning Player " + i + " to " + players.get(i).getName());
+						out.println("ASSIGNED" + players.get(i).getName());
+					}
 				} else {
-					System.out.println("Players size: " + players.size());
+					System.out.println("Players size: " + writers.size());
 				}
 			}
 		} finally {

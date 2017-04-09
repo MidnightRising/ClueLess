@@ -11,13 +11,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-public class ChatClient extends Thread {
+public class ChatClient {
 	
 	private Socket socket;
 	private JTextField input;
 	private JTextArea chatbox;
 	private PrintWriter out;
-	private BufferedReader in;
 	private String name;
 	private JFrame gb;
 
@@ -47,31 +46,25 @@ public class ChatClient extends Thread {
 	            JOptionPane.PLAIN_MESSAGE);
 	}
 	
-	public void run() {
+	
+	public void serverCommand(String command) {
 		
-		try {
-			
-		
+	try {		
 		out = new PrintWriter(socket.getOutputStream(), true);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		
-		 while (true) {
-			 
-	            String line = in.readLine();
-	            if (line.startsWith("SUBMITNAME")) {
+	            if (command.startsWith("SUBMITNAME")) {
 	            	out.println(name);
-	            } else if (line.startsWith("NAMEACCEPTED")) {
+	            } else if (command.startsWith("NAMEACCEPTED")) {
 	                input.setEditable(true);
-	            } else if (line.startsWith("MESSAGE")) {
-	                chatbox.append(line.substring(7) + "\n");
-	            } else if (line.startsWith("REJECTEDNAME")) {
+	            } else if (command.startsWith("MESSAGE")) {
+	                chatbox.append(command.substring(7) + "\n");
+	            } else if (command.startsWith("REJECTEDNAME")) {
 	            	String newName = getNewName();
 	                out.println(newName);
 	                name = newName;
-	            } else if (line.startsWith("EVENT")) {
-	            	chatbox.append(line.substring(5) + "\n");
+	            } else if (command.startsWith("EVENT")) {
+	            	chatbox.append(command.substring(5) + "\n");
 	            }
-	        }
 		} catch(IOException e) {
 			System.out.println("Something went wrong.");
 		}
