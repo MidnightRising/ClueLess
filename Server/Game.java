@@ -7,9 +7,11 @@ import java.util.Collections;
 
 public class Game {
 	private Card[] winningGuess;
+	public int currentTurn;
 	
 	public Game() {
 		setup();
+		currentTurn = 0;
 	}
 	
 	private void setup() {
@@ -94,6 +96,8 @@ public class Game {
 			Socket s = p.getSocket();
 			try {
 				PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+				pw.println("ASSIGNED" + p.getName());
+				pw.println("EVENT" + "You have been assigned: " + p.getName());
 				StringBuilder sb = new StringBuilder();
 				sb.append("Your cards are: ");
 				for(int i = 0; i < p.getHand().size(); i++) {
@@ -102,18 +106,27 @@ public class Game {
 				
 				sb.setLength(sb.length() - 2);
 				pw.println("EVENT" + sb.toString());
+				
+				//Start the first turn!
+				
+				pw.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		
+		}		
 	}
 
 	public void serverCommand(String command) {
 		if(command.startsWith("MOVE")) {
+			if(currentTurn < 5) {
+				currentTurn++;
+			} else {
+				currentTurn = 0;
+			}
 			for(PrintWriter writer : ClueLessServer.writers) {
-				writer.println(command);
+				writer.println(command);				
+				writer.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
 			}
 		}
 	}

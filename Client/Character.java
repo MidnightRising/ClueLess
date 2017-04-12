@@ -1,5 +1,5 @@
 /*
- * Keeps track of everything important to each character, including location
+ * Keeps track of everything important to the playable character, including location
  */
 
 import java.awt.*;
@@ -9,10 +9,19 @@ public class Character {
 	private Location location;
 	private Shape token;
 	private Color color;
+	private boolean myTurn = false;
 	
 	public Character(String name, Location location) {
 		this.name = name;
 		this.location = location;
+	}
+	
+	public void setTurn(Boolean turn) {
+		myTurn = turn;
+	}
+	
+	public boolean isMyTurn() {
+		return myTurn;
 	}
 	
 	public Location getLocation() {

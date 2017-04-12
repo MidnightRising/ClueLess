@@ -11,4 +11,10 @@ public class Location {
 	public Location[] getConnections() {
 		return new Location[]{};
 	};
+	
+	public boolean isOccupied() {
+		return true;
+	}
+	
+	public void setOccupied(boolean isOccupied) {}
 }

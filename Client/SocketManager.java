@@ -27,7 +27,7 @@ public class SocketManager extends Thread {
 					
 					if(line.startsWith("MESSAGE") || line.startsWith("SUBMITNAME") || line.startsWith("NAMEACCEPTED") || line.startsWith("REJECTEDNAME") || line.startsWith("EVENT")) {
 						chat.serverCommand(line);
-					} else if(line.startsWith("ASSIGNED") || line.startsWith("MOVE")) {
+					} else if(line.startsWith("ASSIGNED") || line.startsWith("MOVE") || line.startsWith("NEWTURN")) {
 						gameboard.serverCommand(line);
 					}
 				}

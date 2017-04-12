@@ -24,20 +24,15 @@ public class ClueLessServer {
 				players.add(new Player(player));
 				if(players.size() == 6) {
 					System.out.println("Starting the game!");
-					Collections.shuffle(players);
 					players.get(0).setName("Colonel Mustard");
 					players.get(1).setName("Mrs. White");
 					players.get(2).setName("Mr. Green");
 					players.get(3).setName("Mrs. Peacock");
 					players.get(4).setName("Miss Scarlet");
 					players.get(5).setName("Professor Plum");
+					Collections.shuffle(players);
 					game = new Game();
 					
-					for(int i = 0; i < players.size(); i++) {
-						PrintWriter out = new PrintWriter(players.get(i).getSocket().getOutputStream(), true);
-						System.out.println("Assigning Player " + i + " to " + players.get(i).getName());
-						out.println("ASSIGNED" + players.get(i).getName());
-					}
 				} else {
 					System.out.println("Players size: " + players.size());
 				}

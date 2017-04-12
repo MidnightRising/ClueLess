@@ -14,6 +14,7 @@ public class ClueLess {
 	private JFrame gameboard;
 	private JTextArea messageArea;
 	private JTextField textField;
+	private static JLabel turnLabel;
 	private Socket socket;
 	boolean shownOnce = false;
 		
@@ -22,6 +23,8 @@ public class ClueLess {
 			
 			String name = getName();
 			Gameboard gb = new Gameboard();
+			turnLabel = new JLabel("Welcome to Clueless!", SwingConstants.CENTER);
+			turnLabel.setFont(new Font("Serif", Font.PLAIN, 16));
 		
 			messageArea = new JTextArea();
 			textField = new JTextField();
@@ -33,10 +36,12 @@ public class ClueLess {
 			gameboard = new JFrame();
 			gameboard.setTitle("Clue-Less");
 			textField.setBounds(20,830, 750, 25);
+			turnLabel.setBounds(300,50,200,15);
 			JScrollPane scroll = new JScrollPane (messageArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scroll.setBounds(20,725,750,100);
 			gb.add(scroll);
 			gb.add(textField);
+			gb.add(turnLabel);
 			gameboard.getContentPane().add(gb);
 			gameboard.pack();
 			gameboard.setVisible(true);
@@ -57,6 +62,10 @@ public class ClueLess {
 		"Welcome to Clue-Less! Please choose your display name:",
 		"Screen name selection",
 		JOptionPane.PLAIN_MESSAGE);
+	}
+	
+	public static void setLabel(String msg) {
+		turnLabel.setText(msg);
 	}
 	
 	public static void main(String[] args) {

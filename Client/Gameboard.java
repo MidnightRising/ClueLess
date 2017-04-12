@@ -47,55 +47,58 @@ public class Gameboard extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Shape lounge = new Rectangle2D.Double(600, 100, 100, 100); //Lounge
-		Shape hall = new Rectangle2D.Double(350, 100, 100, 100); //Hall
-		Shape study = new Rectangle2D.Double(100, 100, 100, 100); //Study
-		Shape diningroom = new Rectangle2D.Double(600, 350, 100, 100); //Dining Room
-		Shape billiard = new Rectangle2D.Double(350, 350, 100, 100); //Billiard
-		Shape library = new Rectangle2D.Double(100, 350, 100, 100); //Library
-		Shape kitchen = new Rectangle2D.Double(600, 600, 100, 100); //Kitchen
-		Shape ballroom = new Rectangle2D.Double(350, 600, 100, 100); //Ballroom
-		Shape conservatory = new Rectangle2D.Double(100, 600, 100, 100); //Conservatory
-		
-		Shape study_hall = new Line2D.Double(200, 150, 350, 150);
-		Shape hall_lounge = new Line2D.Double(600, 150, 450, 150);
-		Shape library_billiard = new Line2D.Double(200, 400, 350, 400);
-		Shape billiard_diningroom = new Line2D.Double(450, 400, 600, 400);
-		Shape conservatory_ballroom = new Line2D.Double(200, 650, 350, 650);
-		Shape ballroom_kitchen = new Line2D.Double(450, 650, 600, 650);
-		Shape study_library = new Line2D.Double(150, 200, 150, 350);
-		Shape hall_billiard = new Line2D.Double(400, 200, 400, 350);
-		Shape lounge_diningroom = new Line2D.Double(650, 200, 650, 350);
-		Shape library_conservatory = new Line2D.Double(150, 450, 150, 600);
-		Shape billiard_ballroom = new Line2D.Double(400, 450, 400, 600);
-		Shape diningroom_kitchen = new Line2D.Double(650, 450, 650, 600);
-		
-		
-		
-		
-		boardGUI = new Shape[]{lounge, hall, study, diningroom, billiard, library, kitchen, ballroom, conservatory, study_hall, hall_lounge, 
-				library_billiard, billiard_diningroom, conservatory_ballroom, ballroom_kitchen, study_library, hall_billiard, 
-				lounge_diningroom, library_conservatory, billiard_ballroom, diningroom_kitchen};
 		
 		Graphics2D g2d = (Graphics2D) g;
 		
-		g2d.setFont(new Font("Arial", Font.BOLD, 14));
-		
-		g2d.drawString("Study", 125, 120);
-		g2d.drawString("Hall", 375, 120);
-		g2d.drawString("Lounge", 625, 120);
-		g2d.drawString("Library", 125, 385);
-		g2d.drawString("Billiards", 375, 385);
-		g2d.drawString("Dining", 625, 385);
-		g2d.drawString("Conservatory", 100, 635);
-		g2d.drawString("Ballroom", 375, 635);
-		g2d.drawString("Kitchen", 625, 635);
-		for(int i = 0; i < boardGUI.length; i++) {
-			if(i > 8) {
-				g2d.setStroke(new BasicStroke(5));
-			}
-			g2d.draw(boardGUI[i]);
+		if(boardGUI == null) {
+			Shape lounge = new Rectangle2D.Double(600, 100, 100, 100); //Lounge
+			Shape hall = new Rectangle2D.Double(350, 100, 100, 100); //Hall
+			Shape study = new Rectangle2D.Double(100, 100, 100, 100); //Study
+			Shape diningroom = new Rectangle2D.Double(600, 350, 100, 100); //Dining Room
+			Shape billiard = new Rectangle2D.Double(350, 350, 100, 100); //Billiard
+			Shape library = new Rectangle2D.Double(100, 350, 100, 100); //Library
+			Shape kitchen = new Rectangle2D.Double(600, 600, 100, 100); //Kitchen
+			Shape ballroom = new Rectangle2D.Double(350, 600, 100, 100); //Ballroom
+			Shape conservatory = new Rectangle2D.Double(100, 600, 100, 100); //Conservatory
+			
+			Shape study_hall = new Line2D.Double(200, 150, 350, 150);
+			Shape hall_lounge = new Line2D.Double(600, 150, 450, 150);
+			Shape library_billiard = new Line2D.Double(200, 400, 350, 400);
+			Shape billiard_diningroom = new Line2D.Double(450, 400, 600, 400);
+			Shape conservatory_ballroom = new Line2D.Double(200, 650, 350, 650);
+			Shape ballroom_kitchen = new Line2D.Double(450, 650, 600, 650);
+			Shape study_library = new Line2D.Double(150, 200, 150, 350);
+			Shape hall_billiard = new Line2D.Double(400, 200, 400, 350);
+			Shape lounge_diningroom = new Line2D.Double(650, 200, 650, 350);
+			Shape library_conservatory = new Line2D.Double(150, 450, 150, 600);
+			Shape billiard_ballroom = new Line2D.Double(400, 450, 400, 600);
+			Shape diningroom_kitchen = new Line2D.Double(650, 450, 650, 600);
+			
+			
+			boardGUI = new Shape[]{lounge, hall, study, diningroom, billiard, library, kitchen, ballroom, conservatory, study_hall, hall_lounge, 
+					library_billiard, billiard_diningroom, conservatory_ballroom, ballroom_kitchen, study_library, hall_billiard, 
+					lounge_diningroom, library_conservatory, billiard_ballroom, diningroom_kitchen};
+			
 		}
+			
+			g2d.setFont(new Font("Arial", Font.BOLD, 14));
+			
+			g2d.drawString("Study", 125, 120);
+			g2d.drawString("Hall", 375, 120);
+			g2d.drawString("Lounge", 625, 120);
+			g2d.drawString("Library", 125, 385);
+			g2d.drawString("Billiards", 375, 385);
+			g2d.drawString("Dining", 625, 385);
+			g2d.drawString("Conservatory", 100, 635);
+			g2d.drawString("Ballroom", 375, 635);
+			g2d.drawString("Kitchen", 625, 635);
+			
+			for(int i = 0; i < boardGUI.length; i++) {
+				if(i > 8) {
+					g2d.setStroke(new BasicStroke(5));
+				}
+				g2d.draw(boardGUI[i]);
+			}
 		
 		if(activeCharacter != null && activeCharacter.getColor() != null && activeCharacter.getToken() != null) {
 			g2d.setColor(activeCharacter.getColor());
@@ -110,30 +113,39 @@ public class Gameboard extends JPanel {
 			}
 		}
 		
-		roomToLocation = HashBiMap.create();
-		
-		roomToLocation.put(study, rooms[0]);
-		roomToLocation.put(hall, rooms[1]);
-		roomToLocation.put(lounge, rooms[2]);
-		roomToLocation.put(diningroom, rooms[3]);
-		roomToLocation.put(billiard, rooms[4]);
-		roomToLocation.put(library, rooms[5]);
-		roomToLocation.put(conservatory, rooms[6]);
-		roomToLocation.put(ballroom, rooms[7]);
-		roomToLocation.put(kitchen, rooms[8]);
-		
-		roomToLocation.put(study_hall, hallways[0]);
-		roomToLocation.put(hall_lounge, hallways[1]);
-		roomToLocation.put(lounge_diningroom, hallways[2]);
-		roomToLocation.put(billiard_diningroom, hallways[3]);
-		roomToLocation.put(library_billiard, hallways[4]);
-		roomToLocation.put(library_conservatory, hallways[5]);
-		roomToLocation.put(conservatory_ballroom, hallways[6]);
-		roomToLocation.put(ballroom_kitchen, hallways[7]);
-		roomToLocation.put(study_library, hallways[8]);
-		roomToLocation.put(hall_billiard, hallways[9]);
-		roomToLocation.put(billiard_ballroom, hallways[10]);
-		roomToLocation.put(diningroom_kitchen, hallways[11]);
+		if(roomToLocation == null) {
+			roomToLocation = HashBiMap.create();
+			
+			roomToLocation.put(boardGUI[2], rooms[0]);
+			roomToLocation.put(boardGUI[1], rooms[1]);
+			roomToLocation.put(boardGUI[0], rooms[2]);
+			roomToLocation.put(boardGUI[3], rooms[3]);
+			roomToLocation.put(boardGUI[4], rooms[4]);
+			roomToLocation.put(boardGUI[5], rooms[5]);
+			roomToLocation.put(boardGUI[8], rooms[6]);
+			roomToLocation.put(boardGUI[7], rooms[7]);
+			roomToLocation.put(boardGUI[6], rooms[8]);
+			
+			roomToLocation.put(boardGUI[9], hallways[0]);
+			roomToLocation.put(boardGUI[10], hallways[1]);
+			roomToLocation.put(boardGUI[17], hallways[2]);
+			roomToLocation.put(boardGUI[12], hallways[3]);
+			roomToLocation.put(boardGUI[11], hallways[4]);
+			roomToLocation.put(boardGUI[18], hallways[5]);
+			roomToLocation.put(boardGUI[13], hallways[6]);
+			roomToLocation.put(boardGUI[14], hallways[7]);
+			roomToLocation.put(boardGUI[15], hallways[8]);
+			roomToLocation.put(boardGUI[16], hallways[9]);
+			roomToLocation.put(boardGUI[19], hallways[10]);
+			roomToLocation.put(boardGUI[20], hallways[11]);
+						
+			roomToLocation.get(boardGUI[10]).setOccupied(true);
+			roomToLocation.get(boardGUI[17]).setOccupied(true);
+			roomToLocation.get(boardGUI[12]).setOccupied(true);
+			roomToLocation.get(boardGUI[11]).setOccupied(true);
+			roomToLocation.get(boardGUI[18]).setOccupied(true);
+			roomToLocation.get(boardGUI[13]).setOccupied(true);
+		}
 		
 	}
 	
@@ -197,7 +209,9 @@ public class Gameboard extends JPanel {
 				allLocations.addAll(Arrays.asList(rooms));
 				for(Location l : allLocations) {
 					if(l.getName().equals(location)) {
+						roomToLocation.get(t.getLocation()).setOccupied(false);
 						t.setLocation(roomToLocation.inverse().get(l));
+						roomToLocation.get(t.getLocation()).setOccupied(true);
 						break;
 					}
 				}
@@ -224,22 +238,32 @@ public class Gameboard extends JPanel {
 	 *  If yes, then it calls the moveToken() method. Otherwise throw error
 	 */
 	private void moveCharacter(Location loc, Shape pixelLocation) throws IOException {
-		boolean moved = false;
-		Location currentLocation = activeCharacter.getLocation();
-		Location[] connections = currentLocation.getConnections();
-		for(int i = 0; i < connections.length; i++) {
-			if(connections[i].equals(loc)) {
-				activeCharacter.move(loc);
-				moved = true;
-				moveToken(pixelLocation);
-				PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-				pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
+			boolean moved = false;
+			if(activeCharacter.isMyTurn()) {
+			Location currentLocation = activeCharacter.getLocation();
+			Location[] connections = currentLocation.getConnections();
+			for(int i = 0; i < connections.length; i++) {
+				if(connections[i].equals(loc)) {
+					if(loc.isOccupied()) {
+						System.out.println("This room is already occupied!");
+					} else {
+						activeCharacter.getLocation().setOccupied(false);
+						activeCharacter.move(loc);
+						activeCharacter.getLocation().setOccupied(true);
+						moved = true;
+						moveToken(pixelLocation);
+						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+						pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
+					}
+				}
 			}
-		}
 		
-		if(moved == false) {
-			System.out.println("Cannot move character to that room.");
-		}		
+			if(moved == false) {
+				System.out.println("Cannot move character to that room.");
+			}
+		} else {
+			System.out.println("It's not my turn!");
+		}
 	}
 	
 	/*
@@ -247,21 +271,23 @@ public class Gameboard extends JPanel {
 	 */
 	public Gameboard() {
 		setUpGraph();
+		roomToLocation = null;
+		boardGUI = null;
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				super.mouseClicked(e);
-				for(int i = 0; i < boardGUI.length; i++) {
-					if(boardGUI[i].contains(e.getPoint()) || boardGUI[i].intersects(e.getX() - 5, e.getY() - 5, 15, 15)) {
-						try {
-							moveCharacter(roomToLocation.get(boardGUI[i]), boardGUI[i]);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+					for(int i = 0; i < boardGUI.length; i++) {
+						if(boardGUI[i].contains(e.getPoint()) || boardGUI[i].intersects(e.getX() - 5, e.getY() - 5, 15, 15)) {
+							try {
+								moveCharacter(roomToLocation.get(boardGUI[i]), boardGUI[i]);
+							} catch (IOException e1) {
+								//TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 					}
 				}
-			}
 		});
 	}
 	
@@ -274,6 +300,15 @@ public class Gameboard extends JPanel {
 			command = command.substring(4);
 			String[] moveCommand = command.split(";");
 			moveNonPlayerToken(moveCommand[0], moveCommand[1]);
+		} else if(command.startsWith("NEWTURN")) {
+			command = command.substring(7);
+			if(command.equals(activeCharacter.getName())) {
+				activeCharacter.setTurn(true);
+				ClueLess.setLabel("It's your turn!");
+			} else {
+				activeCharacter.setTurn(false);
+				ClueLess.setLabel("It's " + command + "\'s turn");
+			}
 		} else if(command.startsWith("ASSIGNED")) {
 			String character = command.substring(8);
 			Token pp;
@@ -282,6 +317,7 @@ public class Gameboard extends JPanel {
 			Token mg;
 			Token mp;
 			Token ms;
+			
 			switch(character) {
 			case "Professor Plum":
 				activeCharacter = new Character("Professor Plum", hallways[1]);
