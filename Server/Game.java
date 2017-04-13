@@ -128,6 +128,16 @@ public class Game {
 				writer.println(command);				
 				writer.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
 			}
+		} else if(command.startsWith("SKIP")) {
+			if(currentTurn < 5) {
+				currentTurn++;
+			} else {
+				currentTurn = 0;
+			}
+			
+			for(PrintWriter writer : ClueLessServer.writers) {				
+				writer.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
+			}
 		}
 	}
 }

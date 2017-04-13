@@ -7,6 +7,8 @@
  */
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
@@ -33,10 +35,11 @@ public class Gameboard extends JPanel {
 	private Character activeCharacter; //The current character moving around
 	private Socket socket;
 	private Token[] tokens;
+	private JButton skipTurn = null;
 	
 	@Override
     public Dimension getPreferredSize() {
-        return new Dimension(800, 900);
+        return new Dimension(900, 900);
     }; 
 	
 	/*
@@ -47,6 +50,7 @@ public class Gameboard extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		skipTurn.setEnabled(true);
 		
 		Graphics2D g2d = (Graphics2D) g;
 		
@@ -79,38 +83,6 @@ public class Gameboard extends JPanel {
 					library_billiard, billiard_diningroom, conservatory_ballroom, ballroom_kitchen, study_library, hall_billiard, 
 					lounge_diningroom, library_conservatory, billiard_ballroom, diningroom_kitchen};
 			
-		}
-			
-			g2d.setFont(new Font("Arial", Font.BOLD, 14));
-			
-			g2d.drawString("Study", 125, 120);
-			g2d.drawString("Hall", 375, 120);
-			g2d.drawString("Lounge", 625, 120);
-			g2d.drawString("Library", 125, 385);
-			g2d.drawString("Billiards", 375, 385);
-			g2d.drawString("Dining", 625, 385);
-			g2d.drawString("Conservatory", 100, 635);
-			g2d.drawString("Ballroom", 375, 635);
-			g2d.drawString("Kitchen", 625, 635);
-			
-			for(int i = 0; i < boardGUI.length; i++) {
-				if(i > 8) {
-					g2d.setStroke(new BasicStroke(5));
-				}
-				g2d.draw(boardGUI[i]);
-			}
-		
-		if(activeCharacter != null && activeCharacter.getColor() != null && activeCharacter.getToken() != null) {
-			g2d.setColor(activeCharacter.getColor());
-			g2d.fill(activeCharacter.getToken());	
-		}
-		
-		if(tokens != null) {
-			for(Token t : tokens) {
-				g2d.setColor(t.getColor());
-				Shape s = new Ellipse2D.Double(t.getLocation().getBounds().getCenterX() - 10, t.getLocation().getBounds().getCenterY() - 10, 25, 25);
-				g2d.fill(s);
-			}
 		}
 		
 		if(roomToLocation == null) {
@@ -145,6 +117,102 @@ public class Gameboard extends JPanel {
 			roomToLocation.get(boardGUI[11]).setOccupied(true);
 			roomToLocation.get(boardGUI[18]).setOccupied(true);
 			roomToLocation.get(boardGUI[13]).setOccupied(true);
+		}
+			
+			g2d.setFont(new Font("Arial", Font.BOLD, 14));
+			
+			g2d.drawString("Study", 125, 120);
+			g2d.drawString("Hall", 375, 120);
+			g2d.drawString("Lounge", 625, 120);
+			g2d.drawString("Library", 125, 385);
+			g2d.drawString("Billiards", 375, 385);
+			g2d.drawString("Dining", 625, 385);
+			g2d.drawString("Conservatory", 100, 635);
+			g2d.drawString("Ballroom", 375, 635);
+			g2d.drawString("Kitchen", 625, 635);
+			
+			for(int i = 0; i < boardGUI.length; i++) {
+				if(i > 8) {
+					g2d.setStroke(new BasicStroke(5));
+				}
+				g2d.draw(boardGUI[i]);
+			}
+		
+		if(tokens != null) {
+			ArrayList<Token> toBeDrawn = new ArrayList<Token>();
+			toBeDrawn.addAll(Arrays.asList(tokens));
+			for(Room r : rooms) {
+				ArrayList<Token> occupantsToDraw = r.getOccupants();
+				Shape roomSquare = roomToLocation.inverse().get(r);
+				Shape characterToken = null;
+				double newX = roomSquare.getBounds().getCenterX();
+				double newY = roomSquare.getBounds().getCenterY();
+				for(int i = 0; i < occupantsToDraw.size(); i++) {
+					Token occupant = occupantsToDraw.get(i);
+					g2d.setColor(occupant.getColor());
+					if(i == 0) {
+						characterToken = new Ellipse2D.Double(newX - 50, newY - 35, 25, 25);
+					} else if(i == 1) {
+						characterToken = new Ellipse2D.Double(newX - 20, newY - 35, 25, 25);
+					} else if(i == 2) {
+						characterToken = new Ellipse2D.Double(newX + 10, newY - 35, 25, 25);
+					} else if(i == 3) {
+						characterToken = new Ellipse2D.Double(newX - 50, newY + 20, 25, 25);
+					} else if(i == 4) {
+						characterToken = new Ellipse2D.Double(newX - 20, newY + 20, 25, 25);
+					} else if(i == 5) {
+						characterToken = new Ellipse2D.Double(newX + 10, newY + 20, 25, 25);
+					}
+					
+					toBeDrawn.remove(occupant);
+					g2d.fill(characterToken);
+				}
+			}
+			
+			for(Token t : toBeDrawn) {
+				double newX = t.getLocation().getBounds().getCenterX();
+				double newY = t.getLocation().getBounds().getCenterY();
+				Shape characterToken = new Ellipse2D.Double(newX - 10, newY - 10, 25, 25);
+				g2d.setColor(t.getColor());
+				g2d.fill(characterToken);
+			}
+			
+		}
+		
+		if(activeCharacter != null && activeCharacter.getColor() != null && activeCharacter.getToken() != null) {
+			g2d.setColor(activeCharacter.getColor());
+			Shape playerToken = activeCharacter.getToken();
+			double newX = playerToken.getBounds().getCenterX();
+			double newY = playerToken.getBounds().getCenterY();
+			if(activeCharacter.getLocation() instanceof Room) {
+				Room currentLoc = (Room) activeCharacter.getLocation();
+				int currentOccupants = currentLoc.getOccupants().size();
+				
+				switch(currentOccupants) {
+				case 0:
+					playerToken = new Ellipse2D.Double(newX - 50, newY - 35, 25, 25);
+					break;
+				case 1:
+					playerToken = new Ellipse2D.Double(newX - 20, newY - 35, 25, 25);
+					break;
+				case 2:
+					playerToken = new Ellipse2D.Double(newX + 10, newY - 35, 25, 25);
+					break;
+				case 3:
+					playerToken = new Ellipse2D.Double(newX - 50, newY + 20, 25, 25);
+					break;
+				case 4:
+					playerToken = new Ellipse2D.Double(newX - 20, newY + 20, 25, 25);
+					break;
+				case 5:
+					playerToken = new Ellipse2D.Double(newX + 10, newY + 20, 25, 25);
+					break;
+				}
+			} else {
+				playerToken = new Ellipse2D.Double(newX - 10, newY - 10, 25, 25);
+			}
+			
+			g2d.fill(playerToken);
 		}
 		
 	}
@@ -210,11 +278,21 @@ public class Gameboard extends JPanel {
 				for(Location l : allLocations) {
 					if(l.getName().equals(location)) {
 						roomToLocation.get(t.getLocation()).setOccupied(false);
+						if(roomToLocation.get(t.getLocation()) instanceof Room) {
+							Room r = (Room) roomToLocation.get(t.getLocation());
+							r.removeOccupant(t);
+							r.changeOccupants(r.getOccupantNumber() - 1);
+						}
 						t.setLocation(roomToLocation.inverse().get(l));
 						roomToLocation.get(t.getLocation()).setOccupied(true);
+						if(roomToLocation.get(t.getLocation()) instanceof Room) {
+							((Room) roomToLocation.get(t.getLocation())).addOccupant(t);
+							((Room) roomToLocation.get(t.getLocation())).changeOccupants(((Room) roomToLocation.get(t.getLocation())).getOccupantNumber() + 1);
+						}
 						break;
 					}
 				}
+				
 				repaint();
 				break;
 			}			
@@ -225,11 +303,7 @@ public class Gameboard extends JPanel {
 	 * Moves token around the GUI board
 	 */
 	private void moveToken(Shape pixelLocation) {
-		double newX = pixelLocation.getBounds().getCenterX();
-		double newY = pixelLocation.getBounds().getCenterY();
-		
-		Shape characterToken = new Ellipse2D.Double(newX - 10, newY - 10, 25, 25);
-		activeCharacter.setToken(characterToken);
+		activeCharacter.setToken(pixelLocation);
 		repaint();
 	}
 	
@@ -244,7 +318,7 @@ public class Gameboard extends JPanel {
 			Location[] connections = currentLocation.getConnections();
 			for(int i = 0; i < connections.length; i++) {
 				if(connections[i].equals(loc)) {
-					if(loc.isOccupied()) {
+					if(loc.isOccupied() && loc instanceof Hallway) {
 						System.out.println("This room is already occupied!");
 					} else {
 						activeCharacter.getLocation().setOccupied(false);
@@ -273,6 +347,29 @@ public class Gameboard extends JPanel {
 		setUpGraph();
 		roomToLocation = null;
 		boardGUI = null;
+
+		if(skipTurn == null) {
+			skipTurn = new JButton("Skip Turn");
+			skipTurn.addActionListener(new ActionListener()
+			{
+			  public void actionPerformed(ActionEvent e)
+			  {
+				  try {
+					  if(activeCharacter != null && activeCharacter.isMyTurn()) {
+						  PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+							pw.println("SKIP");
+					  }
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			  }
+			});
+		}
+		
+		skipTurn.setBounds(780, 750, 100, 80);
+		this.add(skipTurn);
+		skipTurn.setEnabled(false);
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

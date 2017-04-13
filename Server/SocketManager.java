@@ -31,7 +31,7 @@ public class SocketManager extends Thread {
 				} else if(line.startsWith("NAME")) {
 					line = line.substring(4);
 					chat.addName(line);
-				} else if(line.startsWith("MOVE")) {
+				} else if(line.startsWith("MOVE") || line.startsWith("SKIP")) {
 					ClueLessServer.game.serverCommand(line);
 				}
 			} catch (Exception e) {
