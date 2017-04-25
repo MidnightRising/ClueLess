@@ -36,6 +36,9 @@ public class Gameboard extends JPanel {
 	private Socket socket;
 	private Token[] tokens;
 	private JButton skipTurn = null;
+	private JButton suggestion = null;
+	private boolean alreadySuggested = false;
+	private boolean alreadyMoved = false;
 	
 	@Override
     public Dimension getPreferredSize() {
@@ -50,7 +53,14 @@ public class Gameboard extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		skipTurn.setEnabled(true);
+		
+		if(activeCharacter != null && activeCharacter.isMyTurn()) {
+			skipTurn.setEnabled(true);
+			suggestion.setEnabled(!alreadySuggested && activeCharacter.getLocation() instanceof Room);
+		} else {
+			skipTurn.setEnabled(false);
+			suggestion.setEnabled(false);
+		}
 		
 		Graphics2D g2d = (Graphics2D) g;
 		
@@ -310,14 +320,17 @@ public class Gameboard extends JPanel {
 	/*
 	 * Checks to make sure that the character can move there in logical space
 	 *  If yes, then it calls the moveToken() method. Otherwise throw error
+	 *  
+	 *  The exception is if there's a boolean passed in as well. If that happens
+	 *  just move them to wherever they're supposed to be for suggestions
 	 */
-	private void moveCharacter(Location loc, Shape pixelLocation) throws IOException {
+	private void moveCharacter(Location loc, Shape pixelLocation, boolean... override) throws IOException {
 			boolean moved = false;
-			if(activeCharacter.isMyTurn()) {
+			if(activeCharacter.isMyTurn() || override.length > 0) {
 			Location currentLocation = activeCharacter.getLocation();
 			Location[] connections = currentLocation.getConnections();
 			for(int i = 0; i < connections.length; i++) {
-				if(connections[i].equals(loc)) {
+				if((connections[i].equals(loc) || override.length > 0) && !alreadyMoved) {
 					if(loc.isOccupied() && loc instanceof Hallway) {
 						System.out.println("This room is already occupied!");
 					} else {
@@ -328,6 +341,10 @@ public class Gameboard extends JPanel {
 						moveToken(pixelLocation);
 						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 						pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
+						if(override.length == 0) {
+							alreadyMoved = true;
+						}
+						break;
 					}
 				}
 			}
@@ -340,6 +357,99 @@ public class Gameboard extends JPanel {
 		}
 	}
 	
+	public void showSuggestion() {
+		JPanel suggestion = new JPanel();
+		suggestion.setLayout(new GridLayout(8, 2));
+		
+		JLabel selectWeapon = new JLabel("Weapon:");
+		JLabel selectSuspect = new JLabel("Suspect:");
+		
+		JRadioButton rope = new JRadioButton("Rope");
+		JRadioButton candlestick = new JRadioButton("Candlestick");
+		JRadioButton pipe = new JRadioButton("Pipe");
+		JRadioButton knife = new JRadioButton("Knife");
+		JRadioButton revolver = new JRadioButton("Revolver");
+		JRadioButton wrench = new JRadioButton("Wrench");
+		
+		rope.setActionCommand("Rope");
+		candlestick.setActionCommand("Candlestick");
+		pipe.setActionCommand("Pipe");
+		knife.setActionCommand("Knife");
+		revolver.setActionCommand("Revolver");
+		wrench.setActionCommand("Wrench");
+		
+		JRadioButton white = new JRadioButton("Mrs. White");
+		JRadioButton green = new JRadioButton("Mr. Green");
+		JRadioButton scarlet = new JRadioButton("Ms. Scarlet");
+		JRadioButton plum = new JRadioButton("Mr. Plum");
+		JRadioButton mustard = new JRadioButton("Colonel Mustard");
+		JRadioButton peacock = new JRadioButton("Mrs. Peacock");
+		
+		white.setActionCommand("Mrs. White");
+		green.setActionCommand("Mr. Green");
+		scarlet.setActionCommand("Ms. Scarlet");
+		plum.setActionCommand("Mr. Plum");
+		mustard.setActionCommand("Colonel Mustard");
+		peacock.setActionCommand("Mrs. Peacock");
+		
+		ButtonGroup weapons = new ButtonGroup();
+		
+		weapons.add(rope);
+		weapons.add(candlestick);
+		weapons.add(pipe);
+		weapons.add(knife);
+		weapons.add(revolver);
+		weapons.add(wrench);
+		
+		ButtonGroup suspects = new ButtonGroup();
+		
+		suspects.add(white);
+		suspects.add(green);
+		suspects.add(scarlet);
+		suspects.add(plum);
+		suspects.add(mustard);
+		suspects.add(peacock);
+		
+		suggestion.add(selectWeapon);
+		suggestion.add(selectSuspect);
+		
+		suggestion.add(rope);
+		suggestion.add(white);
+		
+		suggestion.add(candlestick);
+		suggestion.add(green);
+		
+		suggestion.add(pipe);
+		suggestion.add(scarlet);
+		
+		suggestion.add(knife);
+		suggestion.add(plum);
+		
+		suggestion.add(revolver);
+		suggestion.add(mustard);
+		
+		suggestion.add(wrench);
+		suggestion.add(peacock);
+		
+		suggestion.setSize(new Dimension(250, 250));
+		
+		int option = JOptionPane.showConfirmDialog(this, suggestion, null, JOptionPane.YES_NO_OPTION);
+		
+		if(option == JOptionPane.YES_OPTION) {
+			PrintWriter pw;
+			try {
+				pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println("SUGGESTION" + activeCharacter.getLocation().getName() + ";" + weapons.getSelection().getActionCommand() + ";" + suspects.getSelection().getActionCommand() + ";" + activeCharacter.getName());
+				alreadySuggested = true;
+				suggestion.setEnabled(false);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	/*
 	 * Constructor. Calls for graph set up and adds a mouse listener
 	 */
@@ -347,9 +457,20 @@ public class Gameboard extends JPanel {
 		setUpGraph();
 		roomToLocation = null;
 		boardGUI = null;
+		
+		if(suggestion == null) {
+			suggestion = new JButton("Make a Suggestion");
+			suggestion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(activeCharacter.isMyTurn() && alreadySuggested == false) {
+						showSuggestion();
+					}
+				}
+			});
+		}
 
 		if(skipTurn == null) {
-			skipTurn = new JButton("Skip Turn");
+			skipTurn = new JButton("End Turn");
 			skipTurn.addActionListener(new ActionListener()
 			{
 			  public void actionPerformed(ActionEvent e)
@@ -367,8 +488,11 @@ public class Gameboard extends JPanel {
 			});
 		}
 		
-		skipTurn.setBounds(780, 750, 100, 80);
+		suggestion.setBounds(725, 610, 150, 40);
+		skipTurn.setBounds(725, 650, 150, 40);
+		this.add(suggestion);
 		this.add(skipTurn);
+		suggestion.setEnabled(false);
 		skipTurn.setEnabled(false);
 		addMouseListener(new MouseAdapter() {
 			@Override
@@ -392,15 +516,29 @@ public class Gameboard extends JPanel {
 		this.socket = socket;
 	}
 
-	public void serverCommand(String command) {
+	public void serverCommand(String command) throws IOException {
 		if(command.startsWith("MOVE")) {
 			command = command.substring(4);
+			System.out.println("Move string:" + command);
 			String[] moveCommand = command.split(";");
-			moveNonPlayerToken(moveCommand[0], moveCommand[1]);
+			if(moveCommand[0].equals(activeCharacter.getName()) && !activeCharacter.getLocation().getName().equals(moveCommand[1])) {
+				System.out.println("Active character being moved");
+				for(int i = 0; i < rooms.length; i++) {
+					if(rooms[i].getName().equals(moveCommand[1])) {
+						System.out.println("Found room");
+						moveCharacter(rooms[i], roomToLocation.inverse().get(rooms[i]), true);
+						break;
+					}
+				}
+			} else {
+				moveNonPlayerToken(moveCommand[0], moveCommand[1]);
+			}
 		} else if(command.startsWith("NEWTURN")) {
 			command = command.substring(7);
 			if(command.equals(activeCharacter.getName())) {
 				activeCharacter.setTurn(true);
+				alreadySuggested = false;
+				alreadyMoved = false;
 				ClueLess.setLabel("It's your turn!");
 			} else {
 				activeCharacter.setTurn(false);

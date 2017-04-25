@@ -33,6 +33,10 @@ public class SocketManager extends Thread {
 					chat.addName(line);
 				} else if(line.startsWith("MOVE") || line.startsWith("SKIP")) {
 					ClueLessServer.game.serverCommand(line);
+				} else if(line.startsWith("SUGGESTION")) {
+					String output = ClueLessServer.game.serverCommand(line);
+					PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+					pw.println(output);
 				}
 			} catch (Exception e) {
 				try {

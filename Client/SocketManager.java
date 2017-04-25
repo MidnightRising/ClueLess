@@ -22,7 +22,8 @@ public class SocketManager extends Thread {
 			while(true) {
 				String line = reader.readLine();
 				
-				if(line != null) {					
+				if(line != null) {	
+					System.out.println("SM-Client: " + line);
 					if(line.startsWith("MESSAGE") || line.startsWith("SUBMITNAME") || line.startsWith("NAMEACCEPTED") || line.startsWith("REJECTEDNAME") || line.startsWith("EVENT")) {
 						chat.serverCommand(line);
 					} else if(line.startsWith("ASSIGNED") || line.startsWith("MOVE") || line.startsWith("NEWTURN")) {

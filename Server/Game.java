@@ -117,16 +117,10 @@ public class Game {
 		}		
 	}
 
-	public void serverCommand(String command) {
+	public String serverCommand(String command) {
 		if(command.startsWith("MOVE")) {
-			if(currentTurn < 5) {
-				currentTurn++;
-			} else {
-				currentTurn = 0;
-			}
 			for(PrintWriter writer : ClueLessServer.writers) {
 				writer.println(command);				
-				writer.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
 			}
 		} else if(command.startsWith("SKIP")) {
 			if(currentTurn < 5) {
@@ -138,6 +132,31 @@ public class Game {
 			for(PrintWriter writer : ClueLessServer.writers) {				
 				writer.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
 			}
+		} else if(command.startsWith("SUGGESTION")) {
+			command = command.substring(10);
+			String[] suggestion = command.split(";");
+			serverCommand("MOVE" + suggestion[2] + ";" + suggestion[0]);
+			String cardFound = null;
+			for(Player p : ClueLessServer.players)  {
+				if(!p.getName().equals(suggestion[3])) {
+					for(Card c : p.getHand()) {
+						if(c.getName().equalsIgnoreCase(suggestion[0]) || c.getName().equalsIgnoreCase(suggestion[1]) || c.getName().equalsIgnoreCase(suggestion[2])) {
+							cardFound = c.getName();
+							break;
+						}
+					}
+				
+					if(cardFound != null) {
+						return ("EVENT" + p.getName() + " had the " + cardFound + " card");
+					}
+				}
+			}
+			
+			if(cardFound == null) {
+				return ("EVENTNo player had those cards!");
+			}
 		}
+		
+		return null;
 	}
 }
