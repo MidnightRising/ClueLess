@@ -14,7 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Gameboard extends JPanel {
@@ -37,8 +40,14 @@ public class Gameboard extends JPanel {
 	private Token[] tokens;
 	private JButton skipTurn = null;
 	private JButton suggestion = null;
+	private JButton accusation = null;
+	private JButton showNotepad = null;
+	private ArrayList<JCheckBox> suspects = null;
+	private ArrayList<JCheckBox> weapons = null;
+	private ArrayList<JCheckBox> locations = null;
 	private boolean alreadySuggested = false;
 	private boolean alreadyMoved = false;
+	private boolean stayedInRoom = false;
 	
 	@Override
     public Dimension getPreferredSize() {
@@ -56,10 +65,12 @@ public class Gameboard extends JPanel {
 		
 		if(activeCharacter != null && activeCharacter.isMyTurn()) {
 			skipTurn.setEnabled(true);
-			suggestion.setEnabled(!alreadySuggested && activeCharacter.getLocation() instanceof Room);
+			suggestion.setEnabled(!alreadySuggested && activeCharacter.getLocation() instanceof Room && !stayedInRoom);
+			accusation.setEnabled(activeCharacter.getLocation() instanceof Room);
 		} else {
 			skipTurn.setEnabled(false);
 			suggestion.setEnabled(false);
+			accusation.setEnabled(false);
 		}
 		
 		Graphics2D g2d = (Graphics2D) g;
@@ -146,6 +157,54 @@ public class Gameboard extends JPanel {
 					g2d.setStroke(new BasicStroke(5));
 				}
 				g2d.draw(boardGUI[i]);
+			}
+			
+		//Draw images
+			try {
+				BufferedImage study = ImageIO.read(new File("Images\\Rooms\\study.jpg"));
+				BufferedImage hall = ImageIO.read(new File("Images\\Rooms\\hall.jpg"));
+				BufferedImage lounge = ImageIO.read(new File("Images\\Rooms\\lounge.jpg"));
+				BufferedImage library = ImageIO.read(new File("Images\\Rooms\\library.jpg"));
+				BufferedImage billiard_room = ImageIO.read(new File("Images\\Rooms\\billiard_room.jpg"));
+				BufferedImage dining_room = ImageIO.read(new File("Images\\Rooms\\dining_room.jpg"));
+				BufferedImage conservatory = ImageIO.read(new File("Images\\Rooms\\conservatory.jpg"));
+				BufferedImage ballroom = ImageIO.read(new File("Images\\Rooms\\ballroom.jpg"));
+				BufferedImage kitchen = ImageIO.read(new File("Images\\Rooms\\kitchen.jpg"));
+				
+				BufferedImage horizontal_hallway = ImageIO.read(new File("Images\\Hallways\\horizontal_hallway.jpg"));
+				BufferedImage vertical_hallway = ImageIO.read(new File("Images\\Hallways\\vertical_hallway.jpg"));
+				
+				if(activeCharacter != null) {
+					BufferedImage portrait = activeCharacter.getPortrait();
+					g.drawImage(portrait, 770, 715, null);	
+				}
+				
+				g.drawImage(horizontal_hallway, 200, 150, null);
+				g.drawImage(horizontal_hallway, 450, 150, null);
+				g.drawImage(horizontal_hallway, 200, 400, null);
+				g.drawImage(horizontal_hallway, 450, 400, null);
+				g.drawImage(horizontal_hallway, 200, 650, null);
+				g.drawImage(horizontal_hallway, 450, 650, null);
+				
+				g.drawImage(vertical_hallway, 150, 200, null);
+				g.drawImage(vertical_hallway, 400, 200, null);
+				g.drawImage(vertical_hallway, 650, 200, null);
+				g.drawImage(vertical_hallway, 150, 450, null);
+				g.drawImage(vertical_hallway, 400, 450, null);
+				g.drawImage(vertical_hallway, 650, 450, null);
+				
+				g.drawImage(study.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 100, 100, null);
+				g.drawImage(hall.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 350, 100, null);
+				g.drawImage(lounge.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 600, 100, null);
+				g.drawImage(library.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 100, 350, null);
+				g.drawImage(billiard_room.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 350, 350, null);
+				g.drawImage(dining_room.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 600, 350, null);
+				g.drawImage(conservatory.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 100, 600, null);
+				g.drawImage(ballroom.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 350, 600, null);
+				g.drawImage(kitchen.getScaledInstance(100, 100, Image.SCALE_DEFAULT), 600, 600, null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		
 		if(tokens != null) {
@@ -236,7 +295,7 @@ public class Gameboard extends JPanel {
 		Room lounge = new Room("lounge");
 		Room hall = new Room("hall");
 		Room billiard = new Room("billiard");
-		Room ballroom = new Room("ballroom");
+		Room ballroom = new Room("ballroom room");
 		Room conservatory = new Room("conservatory");
 		Room library = new Room("library");
 		Room study = new Room("study");
@@ -266,6 +325,11 @@ public class Gameboard extends JPanel {
 		
 		this.rooms = new Room[]{study, hall, lounge, diningroom, billiard, library, conservatory, ballroom, kitchen};
 		this.hallways = new Hallway[]{studyToHall, hallToLounge, loungeToDiningRoom, diningRoomtoBilliards, billiardToLibrary, libraryToConservatory, conservatoryToBallroom, ballroomToKitchen, studyToLibrary, hallToBilliard, billiardToBallroom, diningroomToKitchen};
+		
+		study.setSecretRoom(kitchen);
+		kitchen.setSecretRoom(study);
+		lounge.setSecretRoom(conservatory);
+		conservatory.setSecretRoom(lounge);
 		
 	}
 	
@@ -317,6 +381,59 @@ public class Gameboard extends JPanel {
 		repaint();
 	}
 	
+	private void showNotepad() {
+		if(suspects == null) {
+			suspects = new ArrayList<JCheckBox>();
+			weapons = new ArrayList<JCheckBox>();
+			locations = new ArrayList<JCheckBox>();
+			
+			String[] suspectStrings = {"Professor Plum", "Mrs. White", "Mr. Green", "Ms. Scarlet", "Mrs. Peacock", "Colonel Mustard"};
+			String[] weaponsStrings = {"Candlestick", "Lead Pipe", "Rope", "Revolver", "Wrench", "Knife"};
+			String[] locationStrings = {"Hall", "Ballroom", "Kitchen", "Lounge", "Study", "Conservatory", "Billiard Room", "Library", "Dining Room"};
+			
+			for(String string : suspectStrings) {
+				JCheckBox checkbox = new JCheckBox(string);
+				suspects.add(checkbox);
+			}
+			
+			for(String string : weaponsStrings) {
+				JCheckBox checkbox = new JCheckBox(string);
+				weapons.add(checkbox);
+			}
+			
+			for(String string : locationStrings) {
+				JCheckBox checkbox = new JCheckBox(string);
+				locations.add(checkbox);
+			}
+		}
+		
+		JPanel notepad = new JPanel();
+		notepad.setLayout(new GridLayout(24, 1));
+		
+		JLabel suspectLabel = new JLabel("Suspects:");
+		JLabel weaponsLabel = new JLabel("Weapons:");
+		JLabel locationsLabel = new JLabel("Locations");
+		suspectLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		weaponsLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		locationsLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		
+		notepad.add(suspectLabel);
+		for(JCheckBox jcb : suspects) {
+			notepad.add(jcb);
+		}
+		notepad.add(weaponsLabel);
+		for(JCheckBox jcb : weapons) {
+			notepad.add(jcb);
+		}
+		
+		notepad.add(locationsLabel);
+		for(JCheckBox jcb : locations) {
+			notepad.add(jcb);
+		}
+		
+		JOptionPane.showMessageDialog(this, notepad, null, JOptionPane.OK_OPTION);
+	}
+	
 	/*
 	 * Checks to make sure that the character can move there in logical space
 	 *  If yes, then it calls the moveToken() method. Otherwise throw error
@@ -328,7 +445,12 @@ public class Gameboard extends JPanel {
 			boolean moved = false;
 			if(activeCharacter.isMyTurn() || override.length > 0) {
 			Location currentLocation = activeCharacter.getLocation();
-			Location[] connections = currentLocation.getConnections();
+			Location[] connections = null;
+			if(override.length == 0) {
+				connections = currentLocation.getConnections();
+			} else {
+				connections = rooms;
+			}
 			for(int i = 0; i < connections.length; i++) {
 				if((connections[i].equals(loc) || override.length > 0) && !alreadyMoved) {
 					if(loc.isOccupied() && loc instanceof Hallway) {
@@ -343,6 +465,9 @@ public class Gameboard extends JPanel {
 						pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
 						if(override.length == 0) {
 							alreadyMoved = true;
+							stayedInRoom = false;
+						} else {
+							stayedInRoom = false;
 						}
 						break;
 					}
@@ -357,7 +482,7 @@ public class Gameboard extends JPanel {
 		}
 	}
 	
-	public void showSuggestion() {
+	public void showSuggestionAccusation(String suggestionAccusation) {
 		JPanel suggestion = new JPanel();
 		suggestion.setLayout(new GridLayout(8, 2));
 		
@@ -380,15 +505,15 @@ public class Gameboard extends JPanel {
 		
 		JRadioButton white = new JRadioButton("Mrs. White");
 		JRadioButton green = new JRadioButton("Mr. Green");
-		JRadioButton scarlet = new JRadioButton("Ms. Scarlet");
-		JRadioButton plum = new JRadioButton("Mr. Plum");
+		JRadioButton scarlet = new JRadioButton("Miss Scarlet");
+		JRadioButton plum = new JRadioButton("Professor Plum");
 		JRadioButton mustard = new JRadioButton("Colonel Mustard");
 		JRadioButton peacock = new JRadioButton("Mrs. Peacock");
 		
 		white.setActionCommand("Mrs. White");
 		green.setActionCommand("Mr. Green");
-		scarlet.setActionCommand("Ms. Scarlet");
-		plum.setActionCommand("Mr. Plum");
+		scarlet.setActionCommand("Miss Scarlet");
+		plum.setActionCommand("Professor Plum");
 		mustard.setActionCommand("Colonel Mustard");
 		peacock.setActionCommand("Mrs. Peacock");
 		
@@ -431,7 +556,6 @@ public class Gameboard extends JPanel {
 		suggestion.add(wrench);
 		suggestion.add(peacock);
 		
-		suggestion.setSize(new Dimension(250, 250));
 		
 		int option = JOptionPane.showConfirmDialog(this, suggestion, null, JOptionPane.YES_NO_OPTION);
 		
@@ -439,7 +563,7 @@ public class Gameboard extends JPanel {
 			PrintWriter pw;
 			try {
 				pw = new PrintWriter(socket.getOutputStream(), true);
-				pw.println("SUGGESTION" + activeCharacter.getLocation().getName() + ";" + weapons.getSelection().getActionCommand() + ";" + suspects.getSelection().getActionCommand() + ";" + activeCharacter.getName());
+				pw.println(suggestionAccusation + activeCharacter.getLocation().getName() + ";" + weapons.getSelection().getActionCommand() + ";" + suspects.getSelection().getActionCommand() + ";" + activeCharacter.getName());
 				alreadySuggested = true;
 				suggestion.setEnabled(false);
 			} catch (IOException e) {
@@ -456,14 +580,34 @@ public class Gameboard extends JPanel {
 	public Gameboard() {
 		setUpGraph();
 		roomToLocation = null;
-		boardGUI = null;
+		boardGUI = null;		
+		
+		if(showNotepad == null) {
+			showNotepad = new JButton("Show Notepad");
+			showNotepad.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					showNotepad();
+				}
+			});
+		}
 		
 		if(suggestion == null) {
 			suggestion = new JButton("Make a Suggestion");
 			suggestion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(activeCharacter.isMyTurn() && alreadySuggested == false) {
-						showSuggestion();
+						showSuggestionAccusation("SUGGESTION");
+					}
+				}
+			});
+		}
+		
+		if(accusation == null) {
+			accusation = new JButton("Make an Accusation");
+			accusation.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(activeCharacter.isMyTurn()) {
+						showSuggestionAccusation("ACCUSATION");
 					}
 				}
 			});
@@ -480,6 +624,12 @@ public class Gameboard extends JPanel {
 						  PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 							pw.println("SKIP");
 					  }
+					  
+					  if(activeCharacter.getLocation() instanceof Room) {
+						  stayedInRoom = true;
+					  } else {
+						  stayedInRoom = false;
+					  }
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -488,10 +638,15 @@ public class Gameboard extends JPanel {
 			});
 		}
 		
+		accusation.setBounds(725, 570, 150, 40);
 		suggestion.setBounds(725, 610, 150, 40);
+		showNotepad.setBounds(725,530, 150, 40);
 		skipTurn.setBounds(725, 650, 150, 40);
 		this.add(suggestion);
 		this.add(skipTurn);
+		this.add(accusation);
+		this.add(showNotepad);
+		accusation.setEnabled(false);
 		suggestion.setEnabled(false);
 		skipTurn.setEnabled(false);
 		addMouseListener(new MouseAdapter() {
@@ -533,7 +688,26 @@ public class Gameboard extends JPanel {
 			} else {
 				moveNonPlayerToken(moveCommand[0], moveCommand[1]);
 			}
+		} else if(command.startsWith("WIN")) {
+			command = command.substring(3);
+			if(command.equalsIgnoreCase(activeCharacter.getName())) {
+				JOptionPane.showMessageDialog(this, "Congratulations! That was the correct accusation! You win!");
+			} else {
+				JOptionPane.showMessageDialog(this, command + " correctly guessed the murder!");
+			}
+		
+		} else if(command.startsWith("LOSE")) {
+			command = command.substring(4);
+			
+			if(command.equalsIgnoreCase(activeCharacter.getName())) {
+				JOptionPane.showMessageDialog(this, "That was not the correct accusation. You lose.");
+				PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println("SKIP");
+			} else {
+				JOptionPane.showMessageDialog(this, command + " did not correctly guess the murder, and has lost.");
+			}
 		} else if(command.startsWith("NEWTURN")) {
+		
 			command = command.substring(7);
 			if(command.equals(activeCharacter.getName())) {
 				activeCharacter.setTurn(true);
@@ -555,67 +729,67 @@ public class Gameboard extends JPanel {
 			
 			switch(character) {
 			case "Professor Plum":
-				activeCharacter = new Character("Professor Plum", hallways[1]);
-				initiateToken(boardGUI[10].getBounds().getCenterX(), boardGUI[10].getBounds().getCenterY(), activeCharacter, new Color(255, 0, 255));
+				activeCharacter = new Character("Professor Plum", hallways[8], ImageIO.read(new File("Images\\Characters\\professor_plum.png")));
+				initiateToken(boardGUI[15].getBounds().getCenterX(), boardGUI[15].getBounds().getCenterY(), activeCharacter, new Color(255, 0, 255));
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
-				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
-				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[13], "Mr. Green");
 				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
-				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				ms = new Token(Color.RED, boardGUI[10], "Miss Scarlet");
 				tokens = new Token[]{cm, mw, mg, mp, ms};
 				repaint();
 				break;
 			case "Colonel Mustard":
-				activeCharacter = new Character("Colonel Mustard", hallways[2]);
+				activeCharacter = new Character("Colonel Mustard", hallways[2], ImageIO.read(new File("Images\\Characters\\colonel_mustard.png")));
 				initiateToken(boardGUI[17].getBounds().getCenterX(), boardGUI[17].getBounds().getCenterY(), activeCharacter, Color.YELLOW);
-				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
-				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
-				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
+				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[13], "Mr. Green");
 				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
-				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				ms = new Token(Color.RED, boardGUI[10], "Miss Scarlet");
 				tokens = new Token[]{pp, mw, mg, mp, ms};
 				repaint();
 				break;
 			case "Mrs. White":
-				activeCharacter = new Character("Mrs. White", hallways[3]);
-				initiateToken(boardGUI[12].getBounds().getCenterX(), boardGUI[12].getBounds().getCenterY(), activeCharacter, Color.WHITE);
-				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				activeCharacter = new Character("Mrs. White", hallways[7], ImageIO.read(new File("Images\\Characters\\mrs_white.png")));
+				initiateToken(boardGUI[14].getBounds().getCenterX(), boardGUI[14].getBounds().getCenterY(), activeCharacter, Color.WHITE);
+				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
-				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mg = new Token(Color.GREEN, boardGUI[13], "Mr. Green");
 				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
-				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				ms = new Token(Color.RED, boardGUI[10], "Miss Scarlet");
 				tokens = new Token[]{pp, cm, mg, mp, ms};
 				repaint();
 				break;
 			case "Mr. Green":
-				activeCharacter = new Character("Mr. Green", hallways[4]);
-				initiateToken(boardGUI[11].getBounds().getCenterX(), boardGUI[11].getBounds().getCenterY(), activeCharacter, Color.GREEN);
-				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				activeCharacter = new Character("Mr. Green", hallways[6], ImageIO.read(new File("Images\\Characters\\mr_green.png")));
+				initiateToken(boardGUI[13].getBounds().getCenterX(), boardGUI[13].getBounds().getCenterY(), activeCharacter, Color.GREEN);
+				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
-				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
+				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
 				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
-				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				ms = new Token(Color.RED, boardGUI[10], "Miss Scarlet");
 				tokens = new Token[]{pp, cm, mw, mp, ms};
 				repaint();
 				break;
 			case "Mrs. Peacock":
-				activeCharacter = new Character("Mrs. Peacock", hallways[5]);
+				activeCharacter = new Character("Mrs. Peacock", hallways[5], ImageIO.read(new File("Images\\Characters\\mrs_peacock.png")));
 				initiateToken(boardGUI[18].getBounds().getCenterX(), boardGUI[18].getBounds().getCenterY(), activeCharacter, Color.BLUE);
-				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
-				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
-				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
-				ms = new Token(Color.RED, boardGUI[13], "Miss Scarlet");
+				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[13], "Mr. Green");
+				ms = new Token(Color.RED, boardGUI[10], "Miss Scarlet");
 				tokens = new Token[]{pp, cm, mw, mg, ms};
 				repaint();
 				break;
 			case "Miss Scarlet":
-				activeCharacter = new Character("Miss Scarlet", hallways[6]);
-				initiateToken(boardGUI[13].getBounds().getCenterX(), boardGUI[13].getBounds().getCenterY(), activeCharacter, Color.RED);
-				pp = new Token(new Color(255, 0, 255), boardGUI[10], "Professor Plum");
+				activeCharacter = new Character("Miss Scarlet", hallways[1], ImageIO.read(new File("Images\\Characters\\ms_scarlet.png")));
+				initiateToken(boardGUI[10].getBounds().getCenterX(), boardGUI[10].getBounds().getCenterY(), activeCharacter, Color.RED);
+				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
-				mw = new Token(Color.WHITE, boardGUI[12], "Mrs. White");
-				mg = new Token(Color.GREEN, boardGUI[11], "Mr. Green");
+				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
+				mg = new Token(Color.GREEN, boardGUI[13], "Mr. Green");
 				mp = new Token(Color.BLUE, boardGUI[18], "Mrs. Peacock");
 				tokens = new Token[]{pp, cm, mw, mg, mp};
 				repaint();

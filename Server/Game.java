@@ -129,6 +129,11 @@ public class Game {
 				currentTurn = 0;
 			}
 			
+			if(ClueLessServer.players.get(currentTurn).hasLost()) {
+				serverCommand("SKIP");
+				return null;
+			}
+			
 			for(PrintWriter writer : ClueLessServer.writers) {				
 				writer.println("NEWTURN" + ClueLessServer.players.get(currentTurn).getName());
 			}
@@ -155,6 +160,27 @@ public class Game {
 			if(cardFound == null) {
 				return ("EVENTNo player had those cards!");
 			}
+		} else if(command.startsWith("ACCUSATION")) {
+			command = command.substring(10);
+			ArrayList<String> accusation = new ArrayList<String>();
+			accusation.addAll(Arrays.asList(command.split(";")));
+			accusation.set(0, accusation.get(0).toLowerCase());
+			accusation.set(1, accusation.get(1).toLowerCase());
+			accusation.set(2, accusation.get(2).toLowerCase());
+			
+			if(accusation.contains(winningGuess[0].getName().toLowerCase()) && accusation.contains(winningGuess[1].getName().toLowerCase()) && accusation.contains(winningGuess[2].getName().toLowerCase())) {
+				//Win!
+				return "WIN" + accusation.get(3);
+			} else {
+				for(Player p : ClueLessServer.players) {
+					if(p.getName().equalsIgnoreCase(accusation.get(3))) {
+						p.lost();
+					}
+				}
+				return "LOSE" + accusation.get(3);
+			}
+			
+			
 		}
 		
 		return null;

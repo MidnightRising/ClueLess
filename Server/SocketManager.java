@@ -33,10 +33,33 @@ public class SocketManager extends Thread {
 					chat.addName(line);
 				} else if(line.startsWith("MOVE") || line.startsWith("SKIP")) {
 					ClueLessServer.game.serverCommand(line);
-				} else if(line.startsWith("SUGGESTION")) {
+				} else if(line.startsWith("SUGGESTION") || line.startsWith("ACCUSATION")) {
 					String output = ClueLessServer.game.serverCommand(line);
-					PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-					pw.println(output);
+					if(output.startsWith("WIN") || output.startsWith("LOSE")) {
+						for(Player p : ClueLessServer.players) {
+							PrintWriter pw = new PrintWriter(p.getSocket().getOutputStream(), true);
+							pw.println(output);
+						}
+					} else {
+						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+						pw.println(output);
+						line = line.substring(10);
+						for(Player p : ClueLessServer.players) {
+							String[] suggestionInformation = line.split(";");
+							PrintWriter eventPrinter = new PrintWriter(p.getSocket().getOutputStream(), true);
+							String eventLine = "EVENT" + suggestionInformation[3] + " suggested " + suggestionInformation[2] + " killed Mr. Body with the " + suggestionInformation[1] + " in the " + suggestionInformation[0] + " and ";
+							if(output.startsWith("EVENTNo")) {
+								eventLine += "no one could disprove it!";
+							} else {
+								eventLine += "was proven wrong by ";
+								output = output.substring(5);
+								String[] nameSplice = output.split(" ");
+								eventLine += nameSplice[0] + " " + nameSplice[1];
+							}
+							
+							eventPrinter.println(eventLine);
+						}
+					}
 				}
 			} catch (Exception e) {
 				try {

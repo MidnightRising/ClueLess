@@ -16,16 +16,18 @@ public class ChatClient {
 	private Socket socket;
 	private JTextField input;
 	private JTextArea chatbox;
+	private JTextArea eventArea;
 	private PrintWriter out;
 	private String name;
 	private JFrame gb;
 
-	ChatClient(Socket s, JTextField input, JTextArea chatbox, String name, JFrame gb) {
+	ChatClient(Socket s, JTextField input, JTextArea chatbox, String name, JFrame gb, JTextArea eventArea) {
 		this.socket = s;
 		this.input = input;
 		this.chatbox = chatbox;
 		this.name = name;
 		this.gb = gb;
+		this.eventArea = eventArea;
 		addListeners();
 	}
 	
@@ -63,7 +65,11 @@ public class ChatClient {
 	                out.println(newName);
 	                name = newName;
 	            } else if (command.startsWith("EVENT")) {
-	            	chatbox.append(command.substring(5) + "\n");
+	            	eventArea.append(command.substring(5) + "\n\n");
+	            } else if (command.startsWith("MOVE")) {
+	            	command = command.substring(4);
+	            	String[] commandArray = command.split(";");
+	            	eventArea.append(commandArray[0] + " moved to the " + commandArray[1] + "\n\n");
 	            }
 		} catch(IOException e) {
 			System.out.println("Something went wrong.");

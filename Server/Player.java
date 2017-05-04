@@ -5,9 +5,19 @@ public class Player {
 	private Socket socket;
 	private String characterName;
 	private ArrayList<Card> hand = new ArrayList<Card>();
+	private boolean lost;
 	
 	public Player(Socket socket) {
 		this.socket = socket;
+		lost = false;
+	}
+	
+	public boolean hasLost() {
+		return lost;
+	}
+	
+	public void lost() {
+		lost = true;
 	}
 	
 	public void addCard(Card card) {

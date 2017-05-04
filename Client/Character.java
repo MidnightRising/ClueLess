@@ -3,6 +3,7 @@
  */
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Character {
 	private String name;
@@ -10,10 +11,16 @@ public class Character {
 	private Shape token;
 	private Color color;
 	private boolean myTurn = false;
+	private BufferedImage portrait;
 	
-	public Character(String name, Location location) {
+	public Character(String name, Location location, BufferedImage portrait) {
 		this.name = name;
 		this.location = location;
+		this.portrait = portrait;
+	}
+	
+	public BufferedImage getPortrait() {
+		return portrait;
 	}
 	
 	public void setTurn(Boolean turn) {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Room extends Location {
 	private String name;
 	private Hallway[] hallways;
+	private Room secretRoom = null;
 	private boolean isOccupied;
 	private int numOccupants;
 	private ArrayList<Token> occupants;
@@ -54,7 +55,18 @@ public class Room extends Location {
 		return name;
 	}
 	
-	public Hallway[] getConnections() {
-		return hallways;
+	public Location[] getConnections() {
+		if(secretRoom != null) {
+			Location[] allLocations = new Location[hallways.length + 1];
+			System.arraycopy(hallways, 0, allLocations, 0, hallways.length);
+			allLocations[allLocations.length - 1] = secretRoom;
+			return allLocations;
+		} else {
+			return hallways;
+		}
+	}
+	
+	public void setSecretRoom(Room r) {
+		secretRoom = r;
 	}
 }
