@@ -20,8 +20,8 @@ public class ClueLess {
 		
 	public ClueLess() {
 		try {
-			String ip = "localhost";
-			String name = Double.toString(Math.random());
+			String ip = getIP();
+			String name = getName();
 			Gameboard gb = new Gameboard();
 			turnLabel = new JLabel("Welcome to Clueless!", SwingConstants.CENTER);
 			turnLabel.setFont(new Font("Serif", Font.PLAIN, 16));
