@@ -15,15 +15,12 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -31,6 +28,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Gameboard extends JPanel {
+	private static final long serialVersionUID = -7306754819761312736L;
 	private Room[] rooms; //Array of all rooms
 	private Hallway[] hallways; //Array of all hallways
 	private Shape[] boardGUI; //Shapes that make up the board GUI
@@ -161,18 +159,18 @@ public class Gameboard extends JPanel {
 			
 		//Draw images
 			try {
-				BufferedImage study = ImageIO.read(new File("Images\\Rooms\\study.jpg"));
-				BufferedImage hall = ImageIO.read(new File("Images\\Rooms\\hall.jpg"));
-				BufferedImage lounge = ImageIO.read(new File("Images\\Rooms\\lounge.jpg"));
-				BufferedImage library = ImageIO.read(new File("Images\\Rooms\\library.jpg"));
-				BufferedImage billiard_room = ImageIO.read(new File("Images\\Rooms\\billiard_room.jpg"));
-				BufferedImage dining_room = ImageIO.read(new File("Images\\Rooms\\dining_room.jpg"));
-				BufferedImage conservatory = ImageIO.read(new File("Images\\Rooms\\conservatory.jpg"));
-				BufferedImage ballroom = ImageIO.read(new File("Images\\Rooms\\ballroom.jpg"));
-				BufferedImage kitchen = ImageIO.read(new File("Images\\Rooms\\kitchen.jpg"));
+				BufferedImage study = ImageIO.read(new File("Images/Rooms/study.jpg"));
+				BufferedImage hall = ImageIO.read(new File("Images/Rooms/hall.jpg"));
+				BufferedImage lounge = ImageIO.read(new File("Images/Rooms/lounge.jpg"));
+				BufferedImage library = ImageIO.read(new File("Images/Rooms/library.jpg"));
+				BufferedImage billiard_room = ImageIO.read(new File("Images/Rooms/billiard_room.jpg"));
+				BufferedImage dining_room = ImageIO.read(new File("Images/Rooms/dining_room.jpg"));
+				BufferedImage conservatory = ImageIO.read(new File("Images/Rooms/conservatory.jpg"));
+				BufferedImage ballroom = ImageIO.read(new File("Images/Rooms/ballroom.jpg"));
+				BufferedImage kitchen = ImageIO.read(new File("Images/Rooms/kitchen.jpg"));
 				
-				BufferedImage horizontal_hallway = ImageIO.read(new File("Images\\Hallways\\horizontal_hallway.jpg"));
-				BufferedImage vertical_hallway = ImageIO.read(new File("Images\\Hallways\\vertical_hallway.jpg"));
+				BufferedImage horizontal_hallway = ImageIO.read(new File("Images/Hallways/horizontal_hallway.jpg"));
+				BufferedImage vertical_hallway = ImageIO.read(new File("Images/Hallways/vertical_hallway.jpg"));
 				
 				if(activeCharacter != null) {
 					BufferedImage portrait = activeCharacter.getPortrait();
@@ -729,7 +727,7 @@ public class Gameboard extends JPanel {
 			
 			switch(character) {
 			case "Professor Plum":
-				activeCharacter = new Character("Professor Plum", hallways[8], ImageIO.read(new File("Images\\Characters\\professor_plum.png")));
+				activeCharacter = new Character("Professor Plum", hallways[8], ImageIO.read(new File("Images/Characters/professor_plum.png")));
 				initiateToken(boardGUI[15].getBounds().getCenterX(), boardGUI[15].getBounds().getCenterY(), activeCharacter, new Color(255, 0, 255));
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
 				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
@@ -740,7 +738,7 @@ public class Gameboard extends JPanel {
 				repaint();
 				break;
 			case "Colonel Mustard":
-				activeCharacter = new Character("Colonel Mustard", hallways[2], ImageIO.read(new File("Images\\Characters\\colonel_mustard.png")));
+				activeCharacter = new Character("Colonel Mustard", hallways[2], ImageIO.read(new File("Images/Characters/colonel_mustard.png")));
 				initiateToken(boardGUI[17].getBounds().getCenterX(), boardGUI[17].getBounds().getCenterY(), activeCharacter, Color.YELLOW);
 				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				mw = new Token(Color.WHITE, boardGUI[14], "Mrs. White");
@@ -751,7 +749,7 @@ public class Gameboard extends JPanel {
 				repaint();
 				break;
 			case "Mrs. White":
-				activeCharacter = new Character("Mrs. White", hallways[7], ImageIO.read(new File("Images\\Characters\\mrs_white.png")));
+				activeCharacter = new Character("Mrs. White", hallways[7], ImageIO.read(new File("Images/Characters/mrs_white.png")));
 				initiateToken(boardGUI[14].getBounds().getCenterX(), boardGUI[14].getBounds().getCenterY(), activeCharacter, Color.WHITE);
 				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
@@ -762,7 +760,7 @@ public class Gameboard extends JPanel {
 				repaint();
 				break;
 			case "Mr. Green":
-				activeCharacter = new Character("Mr. Green", hallways[6], ImageIO.read(new File("Images\\Characters\\mr_green.png")));
+				activeCharacter = new Character("Mr. Green", hallways[6], ImageIO.read(new File("Images/Characters/mr_green.png")));
 				initiateToken(boardGUI[13].getBounds().getCenterX(), boardGUI[13].getBounds().getCenterY(), activeCharacter, Color.GREEN);
 				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
@@ -773,7 +771,7 @@ public class Gameboard extends JPanel {
 				repaint();
 				break;
 			case "Mrs. Peacock":
-				activeCharacter = new Character("Mrs. Peacock", hallways[5], ImageIO.read(new File("Images\\Characters\\mrs_peacock.png")));
+				activeCharacter = new Character("Mrs. Peacock", hallways[5], ImageIO.read(new File("Images/Characters/mrs_peacock.png")));
 				initiateToken(boardGUI[18].getBounds().getCenterX(), boardGUI[18].getBounds().getCenterY(), activeCharacter, Color.BLUE);
 				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
@@ -784,7 +782,7 @@ public class Gameboard extends JPanel {
 				repaint();
 				break;
 			case "Miss Scarlet":
-				activeCharacter = new Character("Miss Scarlet", hallways[1], ImageIO.read(new File("Images\\Characters\\ms_scarlet.png")));
+				activeCharacter = new Character("Miss Scarlet", hallways[1], ImageIO.read(new File("Images/Characters/ms_scarlet.png")));
 				initiateToken(boardGUI[10].getBounds().getCenterX(), boardGUI[10].getBounds().getCenterY(), activeCharacter, Color.RED);
 				pp = new Token(new Color(255, 0, 255), boardGUI[15], "Professor Plum");
 				cm = new Token(Color.YELLOW, boardGUI[17], "Colonel Mustard");
