@@ -117,9 +117,10 @@ public class Game {
 		}		
 	}
 
-	public String serverCommand(String command) {
+	public String serverCommand(String command) throws IOException {
 		if(command.startsWith("MOVE")) {
-			for(PrintWriter writer : ClueLessServer.writers) {
+			for(Player p : ClueLessServer.players) {
+				PrintWriter writer = new PrintWriter(p.getSocket().getOutputStream(), true);
 				writer.println(command);				
 			}
 		} else if(command.startsWith("SKIP")) {

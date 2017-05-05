@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class SocketManager extends Thread {
 	private ChatHandler chat;
@@ -21,8 +20,14 @@ public class SocketManager extends Thread {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					
 				String line = reader.readLine();
+				String playerName = null;
 				if(line != null) {
-					System.out.println("SERVER-SM: " + line);
+					for(Player p : ClueLessServer.players) {
+						if(p.getSocket() == socket) {
+							playerName = p.getName();
+						}
+					}
+					System.out.println("SERVER-SM: " + line + " from " + playerName);
 				}
 				
 				if(line.startsWith("CHATMESSAGE")) {
@@ -44,20 +49,22 @@ public class SocketManager extends Thread {
 						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 						pw.println(output);
 						line = line.substring(10);
+						String[] suggestionInformation = line.split(";");
+						String eventLine = "EVENT" + suggestionInformation[3] + " suggested " + suggestionInformation[2] + " killed Mr. Body with the " + suggestionInformation[1] + " in the " + suggestionInformation[0] + " and ";
+						if(output.startsWith("EVENTNo")) {
+							eventLine += "no one could disprove it!";
+						} else {
+							eventLine += "was proven wrong by ";
+							output = output.substring(5);
+							String[] nameSplice = output.split(" ");
+							eventLine += nameSplice[0] + " " + nameSplice[1];
+						}
+						
 						for(Player p : ClueLessServer.players) {
-							String[] suggestionInformation = line.split(";");
-							PrintWriter eventPrinter = new PrintWriter(p.getSocket().getOutputStream(), true);
-							String eventLine = "EVENT" + suggestionInformation[3] + " suggested " + suggestionInformation[2] + " killed Mr. Body with the " + suggestionInformation[1] + " in the " + suggestionInformation[0] + " and ";
-							if(output.startsWith("EVENTNo")) {
-								eventLine += "no one could disprove it!";
-							} else {
-								eventLine += "was proven wrong by ";
-								output = output.substring(5);
-								String[] nameSplice = output.split(" ");
-								eventLine += nameSplice[0] + " " + nameSplice[1];
+							if(!p.getName().equalsIgnoreCase(suggestionInformation[3])) {
+								PrintWriter eventPrinter = new PrintWriter(p.getSocket().getOutputStream(), true);
+								eventPrinter.println(eventLine);	
 							}
-							
-							eventPrinter.println(eventLine);
 						}
 					}
 				}

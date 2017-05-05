@@ -293,7 +293,7 @@ public class Gameboard extends JPanel {
 		Room lounge = new Room("lounge");
 		Room hall = new Room("hall");
 		Room billiard = new Room("billiard");
-		Room ballroom = new Room("ballroom room");
+		Room ballroom = new Room("ballroom");
 		Room conservatory = new Room("conservatory");
 		Room library = new Room("library");
 		Room study = new Room("study");
@@ -450,17 +450,20 @@ public class Gameboard extends JPanel {
 				connections = rooms;
 			}
 			for(int i = 0; i < connections.length; i++) {
-				if((connections[i].equals(loc) || override.length > 0) && !alreadyMoved) {
+				if((connections[i].equals(loc)) && (!alreadyMoved || override.length > 0)) {
 					if(loc.isOccupied() && loc instanceof Hallway) {
 						System.out.println("This room is already occupied!");
+						break;
 					} else {
 						activeCharacter.getLocation().setOccupied(false);
 						activeCharacter.move(loc);
 						activeCharacter.getLocation().setOccupied(true);
 						moved = true;
 						moveToken(pixelLocation);
-						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-						pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
+						if(override.length == 0) {
+							PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+							pw.println("MOVE" + activeCharacter.getName() + ";" + loc.getName());
+						}
 						if(override.length == 0) {
 							alreadyMoved = true;
 							stayedInRoom = false;
@@ -560,10 +563,10 @@ public class Gameboard extends JPanel {
 		if(option == JOptionPane.YES_OPTION) {
 			PrintWriter pw;
 			try {
-				pw = new PrintWriter(socket.getOutputStream(), true);
-				pw.println(suggestionAccusation + activeCharacter.getLocation().getName() + ";" + weapons.getSelection().getActionCommand() + ";" + suspects.getSelection().getActionCommand() + ";" + activeCharacter.getName());
 				alreadySuggested = true;
 				suggestion.setEnabled(false);
+				pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println(suggestionAccusation + activeCharacter.getLocation().getName() + ";" + weapons.getSelection().getActionCommand() + ";" + suspects.getSelection().getActionCommand() + ";" + activeCharacter.getName());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -672,13 +675,10 @@ public class Gameboard extends JPanel {
 	public void serverCommand(String command) throws IOException {
 		if(command.startsWith("MOVE")) {
 			command = command.substring(4);
-			System.out.println("Move string:" + command);
 			String[] moveCommand = command.split(";");
 			if(moveCommand[0].equals(activeCharacter.getName()) && !activeCharacter.getLocation().getName().equals(moveCommand[1])) {
-				System.out.println("Active character being moved");
 				for(int i = 0; i < rooms.length; i++) {
 					if(rooms[i].getName().equals(moveCommand[1])) {
-						System.out.println("Found room");
 						moveCharacter(rooms[i], roomToLocation.inverse().get(rooms[i]), true);
 						break;
 					}

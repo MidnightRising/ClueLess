@@ -1,6 +1,3 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,6 +21,7 @@ public class ClueLessServer {
 				players.add(new Player(player));
 				if(players.size() == 6) {
 					System.out.println("Starting the game!");
+					Collections.shuffle(players);
 					players.get(0).setName("Colonel Mustard");
 					players.get(1).setName("Mrs. White");
 					players.get(2).setName("Mr. Green");

@@ -3,6 +3,8 @@
  */
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
+
 import java.awt.*;
 import java.io.IOException;
 import java.net.Socket;
@@ -18,8 +20,8 @@ public class ClueLess {
 		
 	public ClueLess() {
 		try {
-			String ip = getIP();			
-			String name = getName();
+			String ip = "localhost";
+			String name = Double.toString(Math.random());
 			Gameboard gb = new Gameboard();
 			turnLabel = new JLabel("Welcome to Clueless!", SwingConstants.CENTER);
 			turnLabel.setFont(new Font("Serif", Font.PLAIN, 16));
@@ -37,9 +39,12 @@ public class ClueLess {
 			gameboard.setTitle("Clue-Less");
 			textField.setBounds(20,830, 750, 25);
 			eventArea.setWrapStyleWord(true);
+			
 			turnLabel.setBounds(300,50,200,15);
 			JScrollPane eventScroll = new JScrollPane (eventArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			JScrollPane scroll = new JScrollPane (messageArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			 
+			 
 			scroll.setBounds(20,725,750,100);
 			eventScroll.setBounds(725, 100, 150, 400);
 			gb.add(scroll);
@@ -47,7 +52,9 @@ public class ClueLess {
 			eventArea.setLineWrap(true);
 			gb.add(textField);
 			gb.add(turnLabel);
-			gameboard.getContentPane().add(gb);
+			
+			JScrollPane gameBoardScroll = new JScrollPane (gb, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			gameboard.getContentPane().add(gameBoardScroll);
 			gameboard.pack();
 			gameboard.setVisible(true);
 			
